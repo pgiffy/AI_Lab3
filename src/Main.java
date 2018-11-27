@@ -11,8 +11,6 @@ public class Main {
 	 * 
 	 * */
 
-
-
 	public static void main(String[] args) {
         int size = 4;
         Node[][] maze = new Node[size][size];
@@ -20,6 +18,7 @@ public class Main {
         int iter = 0;
         int startId = -1;
         ArrayList<Node> nodes = new ArrayList<>();
+        Node playerNode = null;
 
         for (int i = 0; i < size; i++) { // write the final solution to output.txt
             for (int j = 0; j < size; j++) {
@@ -27,12 +26,12 @@ public class Main {
                 nodes.add(maze[i][j]);
                 if(i == size-1 && j == 0) {
                     startId = maze[i][j].id;
+                    playerNode = maze[i][j];
                 }
                 iter++;
             }
         }
-        int playerLoc = startId;
-
+        
         int goldPlace = rand.nextInt(size * size);
         int wumpusPlace = rand.nextInt(size * size);
         while(goldPlace == startId || wumpusPlace == startId) {
@@ -127,13 +126,103 @@ public class Main {
             }
             System.out.println();
         }
-
-
-
-
-
+        
+        /*
+         * Start of solution
+         */
+        
+        boolean wumpusAlive = true;
+        int steps = 0;
+        boolean collectedGold = false;
+        
+        while (true) {
+        	if (playerNode.hasPit || (playerNode.hasWumpus && wumpusAlive)) { // check if we are dead
+        		break;
+        	}
+        	playerNode.safe = true; // set the current spot to safe
+        	
+        	if (playerNode.hasGold == true) { // if space has gold then we collect it
+        		collectedGold = true;
+        	}
+        	
+        	/*
+        	 * This big boy is updating the surrounding areas with their probablility of being mean
+        	 */
+        	
+        	if (playerNode.breeze) {
+        		for (Node spot : playerNode.friends) {
+        			if (!spot.safe) {
+        				spot.pitNum++;
+        			}
+        		}
+        	} else {
+        		for (Node spot : playerNode.friends) {
+        			if (!spot.safe) {
+        				spot.pitNum--;
+        			}
+        		}
+        	}
+        	if (playerNode.smell) {
+        		for (Node spot : playerNode.friends) {
+        			if (!spot.safe) {
+        				spot.wumpusNum++;
+        			}
+        		}
+        	} else {
+        		for (Node spot : playerNode.friends) {
+        			if (!spot.safe) {
+        				spot.wumpusNum--;
+        			}
+        		}
+        	}
+        	
+        	/*
+        	 * end of big boy
+        	 */
+        	
+        	for (Node spot : playerNode.friends) { // if there is no chance of pit or wumpus, go to that spot
+        		if (spot.wumpusNum <= 0 && spot.pitNum <= 0) {
+        			playerNode = spot;
+        			break;
+        		}
+        	}
+        	
+        	steps++;
+        }
     }
 	
-
-
+	public static int breadthFirst(Node start) { // remember to wipe all of the tails 
+    	LinkedList<Node> queue = new LinkedList<>();
+    	queue.add(start);
+    	Node current;
+    	while(!queue.isEmpty()) {
+    		current = queue.poll();
+    		if(current.visited == true) {
+    			continue;
+    		}
+    		if(current.hasGold) { 
+    			
+    			return current.id;
+    		}
+    		current.visited = true;
+    		current.tail.add(current);
+    		for(Node n : current.friends) {
+    			if(n.tail.size() <= current.tail.size() && n.tail.size() != 0) { continue; } // has to here to remove possiblity of two equal length lines
+    			n.tail.addAll(removeDuplicates(current.tail));
+    			queue.add(n);
+    		}
+    		
+    	}
+    	return -1;
+    }
+	
+	
+	public static ArrayList<Node> removeDuplicates(ArrayList<Node> remove){
+    	Set<Node> temp = new HashSet<>();
+    	temp.addAll(remove);
+    	remove.clear();
+    	remove.addAll(temp);
+    	return remove;
+    	
+    }
 }

@@ -8,14 +8,16 @@ public class Node {
     int X;
     int Y;
     int content;
-    int smellNum;
-    int breezeNum;
+    int wumpusNum;
+    int pitNum;
+    boolean visited = false;
     boolean hasGold = false;
     boolean hasWumpus = false;
     boolean hasPit = false;
     boolean smell = false;
     boolean breeze = false;
     boolean safe = false;
+    ArrayList<Node> tail = new ArrayList<>();
 
     ArrayList<Node> friends = new ArrayList<>();
 
