@@ -223,15 +223,14 @@ public class Main {
                     } else { //search for best number and move there.
                         System.out.println("No Zero");
                         if (findSafestSquare(badSquares).wumpusNum > 0 && arrow) { //checks if best option is wumpus possible to run kill wumpus unless there is no arrow
-                            Node safeish = findSafestSquare(badSquares);
-                            breadthFirstGuess(playerNode, safeish);
-                            playerNode = safeish;
+                            playerNode = findSafestSquare(badSquares);
                             killWumpus(playerNode);
                             badSquares.remove(playerNode);
+                            //search for said square
                         } else { // goes to spot without killing
-                            Node safeish = findSafestSquare(badSquares);
-                            breadthFirstGuess(playerNode, safeish);
+                            playerNode = findSafestSquare(badSquares);
                             badSquares.remove(playerNode);
+                            //search for said square
                         }
                         steps += playerNode.tail.size();
 
