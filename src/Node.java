@@ -17,6 +17,7 @@ public class Node {
     boolean smell = false;
     boolean breeze = false;
     boolean safe = false;
+    boolean start = false;
     ArrayList<Node> tail = new ArrayList<>();
 
     ArrayList<Node> friends = new ArrayList<>();

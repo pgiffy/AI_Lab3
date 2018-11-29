@@ -10,14 +10,15 @@ public class Main {
 	 *
 	 * 
 	 * */
+	static ArrayList<Node> nodes = new ArrayList<>();
     static boolean wumpusAlive = true;
+    static boolean arrow = true;
 	public static void main(String[] args) {
         int size = 4;
         Node[][] maze = new Node[size][size];
         Random rand = new Random();
         int iter = 0;
         int startId = -1;
-        ArrayList<Node> nodes = new ArrayList<>();
         Node playerNode = null;
 
         for (int i = 0; i < size; i++) { // write the final solution to output.txt
@@ -26,6 +27,7 @@ public class Main {
                 nodes.add(maze[i][j]);
                 if(i == size-1 && j == 0) {
                     startId = maze[i][j].id;
+                    maze[i][j].start = true;
                     playerNode = maze[i][j];
                 }
                 iter++;
@@ -134,9 +136,12 @@ public class Main {
         ArrayList<Node> badSquares = new ArrayList<>();
         int steps = 0;
         boolean collectedGold = false;
-        
+        boolean killChecker = false;
         while (true) {
+            System.out.println(playerNode.id);
+            playerNode.safe = true;
         	if (playerNode.hasPit || (playerNode.hasWumpus && wumpusAlive)) { // check if we are dead
+                System.out.println("Dead");
         		break;
         	}
         	playerNode.safe = true; // set the current spot to safe
@@ -162,7 +167,7 @@ public class Main {
         		for (Node spot : playerNode.friends) {
         			if (!spot.safe) {
         				spot.pitNum--;
-                        if(badSquares.contains(spot) && spot.wumpusNum == 0 && spot.pitNum == 0){ // removing if it is now safe
+                        if(badSquares.contains(spot) && spot.wumpusNum <= 0 && spot.pitNum <= 0){ // removing if it is now safe
                             badSquares.remove(spot);
                         }
         			}
@@ -181,7 +186,7 @@ public class Main {
         		for (Node spot : playerNode.friends) {
         			if (!spot.safe) {
         				spot.wumpusNum--;
-                        if(badSquares.contains(spot) && spot.wumpusNum == 0 && spot.pitNum == 0){ // removing if it is now safe
+                        if(badSquares.contains(spot) && spot.wumpusNum <= 0 && spot.pitNum <= 0){ // removing if it is now safe
                             badSquares.remove(spot);
                         }
         			}
@@ -192,26 +197,43 @@ public class Main {
         	 * end of big boy
         	 */
         	boolean checker = false;
-        	for (Node spot : playerNode.friends) { // if there is no chance of pit or wumpus, go to that spot
-                if (spot.wumpusNum <= 0 && spot.pitNum <= 0) {
-                    playerNode = spot;
-                    checker = true;
-                    steps++;
-                    break;
-                }
-            }
-            if(!checker){ // has to skip if it moves one spot
-                if(breadthFirstZero(playerNode) != -1){ //check if there is findable zero
-                    playerNode = nodes.get(breadthFirstZero(playerNode)); //set player spot
-                } else { //search for best number and move there.
-                    if(findSafestSquare(badSquares).wumpusNum > 0){ //checks if best option is wumpus possible to run kill wumpus
 
-                    }else{ // goes to spot without killing
+        	if(collectedGold){ // checking if the player has gold
+        	    //search back to start
+                breadthFirstEnd(playerNode);//used to establish steps
+                killChecker = true; // ends game
+            }else {
+
+                for (Node spot : playerNode.friends) { // if there is no chance of pit or wumpus, go to that spot
+                    if (spot.wumpusNum <= 0 && spot.pitNum <= 0 && !spot.safe) {
+                        playerNode = spot;
+                        checker = true;
+                        steps++;
+                        break;
+                    }
+                }
+                if (!checker) { // has to skip if it moves one spot
+                    if (breadthFirstZero(playerNode) != -1) { //check if there is findable zero
+                        playerNode = nodes.get(breadthFirstZero(playerNode)); //set player spot
+                    } else { //search for best number and move there.
+                        System.out.println("No Zero");
+                        if (findSafestSquare(badSquares).wumpusNum > 0 && arrow) { //checks if best option is wumpus possible to run kill wumpus unless there is no arrow
+                            playerNode = findSafestSquare(badSquares);
+                            killWumpus(playerNode);
+                            badSquares.remove(playerNode);
+                        } else { // goes to spot without killing
+                            playerNode = findSafestSquare(badSquares);
+                            badSquares.remove(playerNode);
+                        }
 
                     }
-
                 }
-        	}
+            }
+            if(killChecker){
+                System.out.println("\nWon");
+                break;
+            }
+
         }
     }
 
@@ -241,14 +263,20 @@ public class Main {
 
 
     public static void killWumpus(Node toKill){ // checks if space being moved to is a wumpus to kill is
-        if(toKill.hasWumpus){//checks for if wumpus "screams"/dies
+        if(toKill.hasWumpus && arrow){//checks for if wumpus "screams"/dies
 	        toKill.hasWumpus = false;
 	        wumpusAlive = false;
+	        arrow = false;
+	        System.out.println("Wumpus Screams");
+	        wumpusWumps();
         }
+        arrow = false;
     }
 
 	
 	public static int breadthFirstZero(Node start) { // breadth first searched for nearest zero spot
+        System.out.println("Finding 0");
+        clearTails();
     	LinkedList<Node> queue = new LinkedList<>();
     	queue.add(start);
     	Node current;
@@ -257,20 +285,46 @@ public class Main {
     		if(current.visited == true) {
     			continue;
     		}
-    		if(current.wumpusNum == 0 && current.pitNum == 0 && !current.safe) {
+    		if(current.wumpusNum <= 0 && current.pitNum <= 0 && !current.safe) {
     			
     			return current.id;
     		}
     		current.visited = true;
     		current.tail.add(current);
     		for(Node n : current.friends) {
-    			if(n.tail.size() <= current.tail.size() && n.tail.size() != 0) { continue; } // has to here to remove possiblity of two equal length lines
+    			if(n.tail.size() <= current.tail.size() && n.tail.size() != 0 || !n.safe) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
     			n.tail.addAll(removeDuplicates(current.tail));
     			queue.add(n);
     		}
     		
     	}
     	return -1;
+    }
+
+    public static int breadthFirstEnd(Node start) { // breadth first searched for start from having gold
+        clearTails();
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.add(start);
+        Node current;
+        while(!queue.isEmpty()) {
+            current = queue.poll();
+            if(current.visited == true) {
+                continue;
+            }
+            if(current.start) {
+
+                return current.id;
+            }
+            current.visited = true;
+            current.tail.add(current);
+            for(Node n : current.friends) {
+                if(n.tail.size() <= current.tail.size() && n.tail.size() != 0 || !n.safe) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
+                n.tail.addAll(removeDuplicates(current.tail));
+                queue.add(n);
+            }
+
+        }
+        return -1;
     }
 	
 	
@@ -282,4 +336,18 @@ public class Main {
     	return remove;
     	
     }
+
+    public static void clearTails(){ // utility to clear tails for multiple searches
+        for(Node n : nodes){
+            n.tail = new ArrayList<>();
+        }
+    }
+    //clear the smells and wumpus vals set to 0
+    public static void wumpusWumps(){
+        for(Node n : nodes){ // easy way to ignore the wumpus and deal with conditionals if he is dead
+            n.smell = false;
+            n.wumpusNum = 0;
+        }
+    }
+
 }
