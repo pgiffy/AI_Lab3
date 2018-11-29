@@ -138,10 +138,12 @@ public class Main {
         boolean collectedGold = false;
         boolean killChecker = false;
         while (true) {
-            System.out.println(playerNode.id);
+            System.out.println(playerNode.id + " , CSteps: " + steps);
+
             playerNode.safe = true;
         	if (playerNode.hasPit || (playerNode.hasWumpus && wumpusAlive)) { // check if we are dead
                 System.out.println("Dead");
+                System.out.println("Steps: " + steps);
         		break;
         	}
         	playerNode.safe = true; // set the current spot to safe
@@ -201,6 +203,7 @@ public class Main {
         	if(collectedGold){ // checking if the player has gold
         	    //search back to start
                 breadthFirstEnd(playerNode);//used to establish steps
+                steps += nodes.get(startId).tail.size(); // adds tail length to steps
                 killChecker = true; // ends game
             }else {
 
@@ -216,22 +219,28 @@ public class Main {
                     int temp = breadthFirstZero(playerNode);
                     if (temp != -1) { //check if there is findable zero
                         playerNode = nodes.get(temp); //set player spot
+                        steps += playerNode.tail.size();
                     } else { //search for best number and move there.
                         System.out.println("No Zero");
                         if (findSafestSquare(badSquares).wumpusNum > 0 && arrow) { //checks if best option is wumpus possible to run kill wumpus unless there is no arrow
-                            playerNode = findSafestSquare(badSquares);
+                            Node safeish = findSafestSquare(badSquares);
+                            breadthFirstGuess(playerNode, safeish);
+                            playerNode = safeish;
                             killWumpus(playerNode);
                             badSquares.remove(playerNode);
                         } else { // goes to spot without killing
-                            playerNode = findSafestSquare(badSquares);
+                            Node safeish = findSafestSquare(badSquares);
+                            breadthFirstGuess(playerNode, safeish);
                             badSquares.remove(playerNode);
                         }
+                        steps += playerNode.tail.size();
 
                     }
                 }
             }
             if(killChecker){
-                System.out.println("\nWon");
+                System.out.println("Won");
+                System.out.println("Steps:" + steps);
                 break;
             }
 
@@ -317,6 +326,33 @@ public class Main {
                 continue;
             }
             if(current.start) {
+                clearVisited();
+                return current.id;
+            }
+            current.visited = true;
+            current.tail.add(current);
+            for(Node n : current.friends) {
+                if(n.tail.size() <= current.tail.size() && n.tail.size() != 0) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
+                n.tail.addAll(removeDuplicates(current.tail));
+                queue.add(n);
+            }
+
+        }
+        clearVisited();
+        return -1;
+    }
+
+    public static int breadthFirstGuess(Node start, Node end) { // breadth first searched for start from having gold
+        clearTails();
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.add(start);
+        Node current;
+        while(!queue.isEmpty()) {
+            current = queue.poll();
+            if(current.visited == true) {
+                continue;
+            }
+            if(current == end) {
                 clearVisited();
                 return current.id;
             }
