@@ -213,8 +213,9 @@ public class Main {
                     }
                 }
                 if (!checker) { // has to skip if it moves one spot
-                    if (breadthFirstZero(playerNode) != -1) { //check if there is findable zero
-                        playerNode = nodes.get(breadthFirstZero(playerNode)); //set player spot
+                    int temp = breadthFirstZero(playerNode);
+                    if (temp != -1) { //check if there is findable zero
+                        playerNode = nodes.get(temp); //set player spot
                     } else { //search for best number and move there.
                         System.out.println("No Zero");
                         if (findSafestSquare(badSquares).wumpusNum > 0 && arrow) { //checks if best option is wumpus possible to run kill wumpus unless there is no arrow
@@ -269,7 +270,10 @@ public class Main {
 	        arrow = false;
 	        System.out.println("Wumpus Screams");
 	        wumpusWumps();
+        } else{
+            System.out.println("Failed wumpus kill");
         }
+
         arrow = false;
     }
 
@@ -286,18 +290,19 @@ public class Main {
     			continue;
     		}
     		if(current.wumpusNum <= 0 && current.pitNum <= 0 && !current.safe) {
-    			
+    			clearVisited();
     			return current.id;
     		}
     		current.visited = true;
     		current.tail.add(current);
     		for(Node n : current.friends) {
-    			if(n.tail.size() <= current.tail.size() && n.tail.size() != 0 || !n.safe) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
+    			if((n.tail.size() <= current.tail.size() && n.tail.size() != 0) || (n.wumpusNum > 0 || current.pitNum > 0)) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
     			n.tail.addAll(removeDuplicates(current.tail));
     			queue.add(n);
     		}
     		
     	}
+    	clearVisited();
     	return -1;
     }
 
@@ -312,18 +317,19 @@ public class Main {
                 continue;
             }
             if(current.start) {
-
+                clearVisited();
                 return current.id;
             }
             current.visited = true;
             current.tail.add(current);
             for(Node n : current.friends) {
-                if(n.tail.size() <= current.tail.size() && n.tail.size() != 0 || !n.safe) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
+                if(n.tail.size() <= current.tail.size() && n.tail.size() != 0) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
                 n.tail.addAll(removeDuplicates(current.tail));
                 queue.add(n);
             }
 
         }
+        clearVisited();
         return -1;
     }
 	
@@ -342,6 +348,13 @@ public class Main {
             n.tail = new ArrayList<>();
         }
     }
+    public static void clearVisited(){// utility to clear visited for multiple searches
+        for(Node n : nodes){
+            n.tail = new ArrayList<>();
+        }
+
+    }
+
     //clear the smells and wumpus vals set to 0
     public static void wumpusWumps(){
         for(Node n : nodes){ // easy way to ignore the wumpus and deal with conditionals if he is dead
