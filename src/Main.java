@@ -264,12 +264,6 @@ public class Main {
 	    return best;
     }
 
-    public static int getDistanceToStart(Node current){ // calculates the shortest safe path back to the start once gold is found
-        int distance = 0;
-
-        return distance;
-    }
-
 
     public static void killWumpus(Node toKill){ // checks if space being moved to is a wumpus to kill is
         if(toKill.hasWumpus && arrow){//checks for if wumpus "screams"/dies
@@ -340,33 +334,6 @@ public class Main {
         clearVisited();
         return -1;
     }
-
-    public static int breadthFirstGuess(Node start, Node end) { // breadth first searched for start from having gold
-        clearTails();
-        LinkedList<Node> queue = new LinkedList<>();
-        queue.add(start);
-        Node current;
-        while(!queue.isEmpty()) {
-            current = queue.poll();
-            if(current.visited == true) {
-                continue;
-            }
-            if(current == end) {
-                clearVisited();
-                return current.id;
-            }
-            current.visited = true;
-            current.tail.add(current);
-            for(Node n : current.friends) {
-                if(n.tail.size() <= current.tail.size() && n.tail.size() != 0) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
-                n.tail.addAll(removeDuplicates(current.tail));
-                queue.add(n);
-            }
-
-        }
-        clearVisited();
-        return -1;
-    }
 	
 	
 	public static ArrayList<Node> removeDuplicates(ArrayList<Node> remove){
@@ -385,7 +352,7 @@ public class Main {
     }
     public static void clearVisited(){// utility to clear visited for multiple searches
         for(Node n : nodes){
-            n.tail = new ArrayList<>();
+            n.visited = false;
         }
 
     }
