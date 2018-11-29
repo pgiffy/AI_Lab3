@@ -10,7 +10,7 @@ public class Main {
 	 *
 	 * 
 	 * */
-
+    static boolean wumpusAlive = true;
 	public static void main(String[] args) {
         int size = 4;
         Node[][] maze = new Node[size][size];
@@ -131,7 +131,7 @@ public class Main {
          * Start of solution
          */
         
-        boolean wumpusAlive = true;
+
         int steps = 0;
         boolean collectedGold = false;
         
@@ -184,12 +184,34 @@ public class Main {
         		if (spot.wumpusNum <= 0 && spot.pitNum <= 0) {
         			playerNode = spot;
         			break;
-        		}
+        		} else if(){ //check if there is findable zero
+        		    //set player spot
+                } else { //search for best number and move there.
+
+                }
         	}
+
+
         	
         	steps++;
         }
     }
+
+    public static void killWumpus(Node current){ // checks friends and shoots the one with the highest wumpus number
+	    Node toKill = null;
+	    for(Node n: current.friends){
+	        if(toKill == null){
+	            toKill = n;
+            }else if(n.wumpusNum > toKill.wumpusNum){
+	            toKill = n;
+            }
+        }
+        if(toKill.hasWumpus){//checks for if wumpus "screams"/dies
+	        toKill.hasWumpus = false;
+	        wumpusAlive = false;
+        }
+    }
+
 	
 	public static int breadthFirst(Node start) { // remember to wipe all of the tails 
     	LinkedList<Node> queue = new LinkedList<>();
