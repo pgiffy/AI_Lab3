@@ -131,7 +131,7 @@ public class Main {
          * Start of solution
          */
         
-
+        ArrayList<Node> badSquares = new ArrayList<>();
         int steps = 0;
         boolean collectedGold = false;
         
@@ -153,12 +153,18 @@ public class Main {
         		for (Node spot : playerNode.friends) {
         			if (!spot.safe) {
         				spot.pitNum++;
+        				if(!badSquares.contains(spot)){ // adding to list of nodes to search
+        				    badSquares.add(spot);
+                        }
         			}
         		}
         	} else {
         		for (Node spot : playerNode.friends) {
         			if (!spot.safe) {
         				spot.pitNum--;
+                        if(badSquares.contains(spot) && spot.wumpusNum == 0 && spot.pitNum == 0){ // removing if it is now safe
+                            badSquares.remove(spot);
+                        }
         			}
         		}
         	}
@@ -166,12 +172,18 @@ public class Main {
         		for (Node spot : playerNode.friends) {
         			if (!spot.safe) {
         				spot.wumpusNum++;
+                        if(!badSquares.contains(spot)){ // adding to list of nodes to search
+                            badSquares.add(spot);
+                        }
         			}
         		}
         	} else {
         		for (Node spot : playerNode.friends) {
         			if (!spot.safe) {
         				spot.wumpusNum--;
+                        if(badSquares.contains(spot) && spot.wumpusNum == 0 && spot.pitNum == 0){ // removing if it is now safe
+                            badSquares.remove(spot);
+                        }
         			}
         		}
         	}
@@ -179,33 +191,56 @@ public class Main {
         	/*
         	 * end of big boy
         	 */
-        	
+        	boolean checker = false;
         	for (Node spot : playerNode.friends) { // if there is no chance of pit or wumpus, go to that spot
-        		if (spot.wumpusNum <= 0 && spot.pitNum <= 0) {
-        			playerNode = spot;
-        			break;
-        		} else if(){ //check if there is findable zero
-        		    //set player spot
+                if (spot.wumpusNum <= 0 && spot.pitNum <= 0) {
+                    playerNode = spot;
+                    checker = true;
+                    steps++;
+                    break;
+                }
+            }
+            if(!checker){ // has to skip if it moves one spot
+                if(breadthFirstZero(playerNode) != -1){ //check if there is findable zero
+                    playerNode = nodes.get(breadthFirstZero(playerNode)); //set player spot
                 } else { //search for best number and move there.
+                    if(findSafestSquare(badSquares).wumpusNum > 0){ //checks if best option is wumpus possible to run kill wumpus
+
+                    }else{ // goes to spot without killing
+
+                    }
 
                 }
         	}
-
-
-        	
-        	steps++;
         }
     }
 
-    public static void killWumpus(Node current){ // checks friends and shoots the one with the highest wumpus number
-	    Node toKill = null;
-	    for(Node n: current.friends){
-	        if(toKill == null){
-	            toKill = n;
-            }else if(n.wumpusNum > toKill.wumpusNum){
-	            toKill = n;
+    public static Node findSafestSquare(ArrayList<Node> toCheck){ // returns id of safest square in list
+        Node best = null;
+        for(Node n : toCheck){
+            if(best == null){
+                best = n;
+            }else{
+                if(best.wumpusNum + best.pitNum > n.wumpusNum + n.pitNum) { //prioritizes total score
+                    best = n;
+                }else if(best.wumpusNum + best.pitNum == n.wumpusNum + n.pitNum){ // if total score is equal use seconds if to choose the one with the wumpus ore likely in it
+                    if(best.wumpusNum < n.wumpusNum){ // want higher wumpus num because we can kill it
+                        best = n;
+                    }
+                }
             }
         }
+	    return best;
+    }
+
+    public static int getDistanceToStart(Node current){ // calculates the shortest safe path back to the start once gold is found
+        int distance = 0;
+
+        return distance;
+    }
+
+
+    public static void killWumpus(Node toKill){ // checks if space being moved to is a wumpus to kill is
         if(toKill.hasWumpus){//checks for if wumpus "screams"/dies
 	        toKill.hasWumpus = false;
 	        wumpusAlive = false;
@@ -213,7 +248,7 @@ public class Main {
     }
 
 	
-	public static int breadthFirst(Node start) { // remember to wipe all of the tails 
+	public static int breadthFirstZero(Node start) { // breadth first searched for nearest zero spot
     	LinkedList<Node> queue = new LinkedList<>();
     	queue.add(start);
     	Node current;
@@ -222,7 +257,7 @@ public class Main {
     		if(current.visited == true) {
     			continue;
     		}
-    		if(current.hasGold) { 
+    		if(current.wumpusNum == 0 && current.pitNum == 0 && !current.safe) {
     			
     			return current.id;
     		}
