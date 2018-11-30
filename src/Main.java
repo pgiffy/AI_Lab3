@@ -10,9 +10,9 @@ public class Main {
 	 *
 	 * 
 	 * */
-	static ArrayList<Node> nodes = new ArrayList<>();
-    static boolean wumpusAlive = true;
-    static boolean arrow = true;
+    private static ArrayList<Node> nodes = new ArrayList<>();
+    private static boolean wumpusAlive = true;
+    private static boolean arrow = true;
 	public static void main(String[] args) {
         int size = 5;
         Node[][] maze = new Node[size][size];
@@ -81,7 +81,7 @@ public class Main {
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++){
-                if(i == size-1 && j == 0 || maze[i][j].hasGold == true){// the player in the bottom right and gold cannot have a pit
+                if(i == size-1 && j == 0 || maze[i][j].hasGold){// the player in the bottom right and gold cannot have a pit
                     continue;
                 }else{
                     if(rand.nextInt(10) < 2) { //First 20% for the pit
@@ -151,7 +151,7 @@ public class Main {
         		break;
         	}
         	
-        	if (playerNode.hasGold == true) { // if space has gold then we collect it
+        	if (playerNode.hasGold) { // if space has gold then we collect it
         		collectedGold = true;
         		steps += 1; // action of picking it up
         	}
@@ -202,7 +202,7 @@ public class Main {
         	/*
         	 * end of big boy
         	 */
-        	boolean checker = false;
+            boolean checker = false;
 
         	if(collectedGold){ // checking if the player has gold
         	    //search back to start
@@ -260,7 +260,7 @@ public class Main {
         }
     }
 
-    public static Node findSafestSquare(ArrayList<Node> toCheck){ // returns id of safest square in list
+    private static Node findSafestSquare(ArrayList<Node> toCheck){ // returns id of safest square in list
         Node best = null;
         for(Node n : toCheck){
             if(best == null){
@@ -279,7 +279,7 @@ public class Main {
     }
 
 
-    public static void killWumpus(Node toKill){ // checks if space being moved to is a wumpus to kill is
+    private static void killWumpus(Node toKill){ // checks if space being moved to is a wumpus to kill is
         if(toKill.hasWumpus && arrow){//checks for if wumpus "screams"/dies
 	        toKill.hasWumpus = false;
 	        wumpusAlive = false;
@@ -294,8 +294,8 @@ public class Main {
         arrow = false;
     }
 
-	
-	public static int breadthFirstZero(Node start) { // breadth first searched for nearest zero spot
+
+    private static int breadthFirstZero(Node start) { // breadth first searched for nearest zero spot
         System.out.println("Finding 0");
         clearTails();
         clearVisited();
@@ -304,7 +304,7 @@ public class Main {
     	Node current;
     	while(!queue.isEmpty()) {
     		current = queue.poll();
-    		if(current.visited == true) {
+    		if(current.visited) {
     			continue;
     		}
     		if(current.wumpusNum <= 0 && current.pitNum <= 0 && !current.safe) {
@@ -323,7 +323,7 @@ public class Main {
     	return -1;
     }
 
-    public static int breadthFirstNoZero(Node start, Node end) { // breadth first searched for nearest zero spot
+    private static int breadthFirstNoZero(Node start, Node end) { // breadth first searched for nearest zero spot
         clearTails();
         clearVisited();
         LinkedList<Node> queue = new LinkedList<>();
@@ -331,7 +331,7 @@ public class Main {
         Node current;
         while(!queue.isEmpty()) {
             current = queue.poll();
-            if(current.visited == true) {
+            if(current.visited) {
                 continue;
             }
             if(current == end) {
@@ -349,7 +349,7 @@ public class Main {
         return -1;
     }
 
-    public static int breadthFirstEnd(Node start) { // breadth first searched for start from having gold
+    private static int breadthFirstEnd(Node start) { // breadth first searched for start from having gold
         clearTails();
         clearVisited();
         LinkedList<Node> queue = new LinkedList<>();
@@ -357,7 +357,7 @@ public class Main {
         Node current;
         while(!queue.isEmpty()) {
             current = queue.poll();
-            if(current.visited == true) {
+            if(current.visited) {
                 continue;
             }
             if(current.start) {
@@ -374,23 +374,22 @@ public class Main {
         }
         return -1;
     }
-	
-	
-	public static ArrayList<Node> removeDuplicates(ArrayList<Node> remove){
-    	Set<Node> temp = new HashSet<>();
-    	temp.addAll(remove);
+
+
+    private static ArrayList<Node> removeDuplicates(ArrayList<Node> remove){
+        Set<Node> temp = new HashSet<>(remove);
     	remove.clear();
     	remove.addAll(temp);
     	return remove;
     	
     }
 
-    public static void clearTails(){ // utility to clear tails for multiple searches
+    private static void clearTails(){ // utility to clear tails for multiple searches
         for(Node n : nodes){
             n.tail = new ArrayList<>();
         }
     }
-    public static void clearVisited(){// utility to clear visited for multiple searches
+    private static void clearVisited(){// utility to clear visited for multiple searches
         for(Node n : nodes){
             n.visited = false;
         }
@@ -398,7 +397,7 @@ public class Main {
     }
 
     //clear the smells and wumpus vals set to 0
-    public static void wumpusWumps(){
+    private static void wumpusWumps(){
         for(Node n : nodes){ // easy way to ignore the wumpus and deal with conditionals if he is dead
             n.smell = false;
             n.wumpusNum = 0;
