@@ -14,7 +14,7 @@ public class Main {
     static boolean wumpusAlive = true;
     static boolean arrow = true;
 	public static void main(String[] args) {
-        int size = 4;
+        int size = 5;
         Node[][] maze = new Node[size][size];
         Random rand = new Random();
         int iter = 0;
@@ -226,15 +226,21 @@ public class Main {
                         playerNode = nodes.get(temp); //set player spot
                         steps += playerNode.tail.size();
                     } else { //search for best number and move there.
-                        System.out.println("No Zero");
+
                         if (findSafestSquare(badSquares).wumpusNum > 0 && arrow) { //checks if best option is wumpus possible to run kill wumpus unless there is no arrow
+                            System.out.println("No Zero Attemp Wump kill");
+                            Node past = playerNode;
                             playerNode = findSafestSquare(badSquares);
-                            killWumpus(playerNode);
+                            breadthFirstNoZero(past, playerNode);
                             badSquares.remove(playerNode);
                             points-=10;
                             steps += playerNode.tail.size();
+                            killWumpus(playerNode);
                         } else { // goes to spot without killing
+                            System.out.println("No Zero No Wump attempt");
+                            Node past = playerNode;
                             playerNode = findSafestSquare(badSquares);
+                            breadthFirstNoZero(past, playerNode);
                             badSquares.remove(playerNode);
                             steps += playerNode.tail.size();
                         }
@@ -315,6 +321,32 @@ public class Main {
     		
     	}
     	return -1;
+    }
+
+    public static int breadthFirstNoZero(Node start, Node end) { // breadth first searched for nearest zero spot
+        clearTails();
+        clearVisited();
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.add(start);
+        Node current;
+        while(!queue.isEmpty()) {
+            current = queue.poll();
+            if(current.visited == true) {
+                continue;
+            }
+            if(current == end) {
+                return current.id;
+            }
+            current.visited = true;
+            current.tail.add(current);
+            for(Node n : current.friends) {
+                if((n.tail.size() <= current.tail.size() && n.tail.size() != 0) || (n.wumpusNum > 0 || current.pitNum > 0)) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
+                n.tail.addAll(removeDuplicates(current.tail));
+                queue.add(n);
+            }
+
+        }
+        return -1;
     }
 
     public static int breadthFirstEnd(Node start) { // breadth first searched for start from having gold
