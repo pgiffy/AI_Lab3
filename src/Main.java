@@ -340,7 +340,7 @@ public class Main {
             current.visited = true;
             current.tail.add(current);
             for(Node n : current.friends) {
-                if((n.tail.size() <= current.tail.size() && n.tail.size() != 0) || (n.wumpusNum > 0 || current.pitNum > 0)) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
+                if(n.tail.size() <= current.tail.size() && n.tail.size() != 0) continue; // has to here to remove possiblity of two equal length lines and if it is a safe space
                 n.tail.addAll(removeDuplicates(current.tail));
                 queue.add(n);
             }
