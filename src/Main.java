@@ -14,7 +14,7 @@ public class Main {
     static boolean wumpusAlive = true;
     static boolean arrow = true;
 	public static void main(String[] args) {
-        int size = 10;
+        int size = 4;
         Node[][] maze = new Node[size][size];
         Random rand = new Random();
         int iter = 0;
@@ -139,9 +139,9 @@ public class Main {
         boolean collectedGold = false;
         boolean killChecker = false;
         while (true) {
-            System.out.println(playerNode.id + " , CSteps: " + steps);
+            System.out.println(playerNode.id + ", Steps: " + steps);
 
-            playerNode.safe = true;
+            playerNode.safe = true; // set the current spot to safe
         	if (playerNode.hasPit || (playerNode.hasWumpus && wumpusAlive)) { // check if we are dead
                 points -= 1000;
                 points -= steps;
@@ -150,7 +150,6 @@ public class Main {
                 System.out.println("Points: " + points);
         		break;
         	}
-        	playerNode.safe = true; // set the current spot to safe
         	
         	if (playerNode.hasGold == true) { // if space has gold then we collect it
         		collectedGold = true;
@@ -283,6 +282,7 @@ public class Main {
 	        wumpusWumps();
         } else{
             System.out.println("Failed wumpus kill");
+            toKill.wumpusNum = 0;
         }
 
         arrow = false;
@@ -307,8 +307,9 @@ public class Main {
     		current.visited = true;
     		current.tail.add(current);
     		for(Node n : current.friends) {
-    			if((n.tail.size() <= current.tail.size() && n.tail.size() != 0) || (n.wumpusNum > 0 || current.pitNum > 0)) { continue; } // has to here to remove possiblity of two equal length lines and if it is a safe space
-    			n.tail.addAll(removeDuplicates(current.tail));
+    			if((n.tail.size() <= current.tail.size() && n.tail.size() != 0) || (n.wumpusNum > 0 || current.pitNum > 0)) continue; // has to here to remove possiblity of two equal length lines and if it is a safe space
+//    			if (!n.safe) continue;
+                n.tail.addAll(removeDuplicates(current.tail));
     			queue.add(n);
     		}
     		
