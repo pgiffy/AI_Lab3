@@ -1,0 +1,23 @@
+AI_Lab3 - Report
+
+Peter Gifford, Sam Behrens
+
+Implementation Description:For our implementation we choose to only use Java. We avoided prolog because there were not that many conditions and it was easier to implement the logic with simple if statements than connecting java to a bunch of prolog queries.
+We also avoided prolog because the simplified rule set made the game easier to measure and make an AI play. The first advantage of the simplified rules was the lack of the need to turn. This allowed us to use nodes and just count the distances to the desired spot rather than actually moving the character one space at a time. We also did not have to take direction into account for shooting the arrow because our implementation would only shoot the arrow if we thought that the Wumpus was there. Because there is only one Wumpus, if the arrow did not kill him there would be no way for it to hit anything down the line because we would only shoot a space that is one spot away from a stink as we moved into it. 
+Our solution was heavily based on searching using breadth first to find the most optimal paths. To decide what space we needed to move to, we implemented a system similar to the classic game minesweeper. Each node had a Wumpus value and a pit value attached to it. If our character felt a breeze then all the spaces surrounding him (if he had not been there before) gained one pit value. The same logic was used for the Wumpus and stink. Also, if the character stepped into a space with no stink or breeze then all the surrounding spaces would lose one pit value and Wumpus value. This allowed our AI to have an understanding of the risk associated with each square. 
+The logic we used revolved around this number system. The primary mode of movement was checking if the squares next to the player had zeros or less points wise. If these exist, then the player just moves to the guaranteed safe space. However these spaces run out quickly. Once there is no 0 space next to the player. We run a breadth first search to find a 0 space that can be reached through spaces that have already been traveled. If there are no guaranteed safe moves based off of the search then we switch to choosing the safest nonzero space. As the character moves around we keep a list of spaces that are made nonzero. We search through this list to see the best option. We first narrow down the list to spaces with the lowest total scores between pit value and Wumpus value. Then we take the smaller list and prioritize spaces with bigger rumpus values. Once the space is chosen we move into the space. If the space has a Wumpus value then we try to kill the Wumpus as we move into the space. Once we have done this once and no longer have the arrow we remove the priority of the wumpus space and just randomly pick a space with the lowest cumulative value. Also, if the Wumpus is killed then we remove the Wumpus value from all the tiles because there is no longer a risk. 
+When either of the above spaces are found we run breadth first search to find the shortest path there. Also, once we find the gold then we immediately run breadth first to find the shortest path back to the start square on only already traveled spaces. 
+This strategy has played out very well because we can easily choose the most optimal paths to preserve the life of the player and can avoid making probabilities and shifts the weight of the scores based on the Wumpus living or not.
+Also because we cannot leave without the gold this is an efficient way to keep life for the longest amount of time maximizing the ability to find the gold and get a lot more points. 
+
+First Order Logic Rules:
+
+Results:
+
+Analysis:
+
+Statements of Individual Contribution:
+Peter Gifford - I helped to collaboratively create the set of logic rules with Sam. I also worked with Sam to get all the setup involving the board and searching with Sam. I then plugged in a lot of the code to implement the logic rules and when to run the searched to move. 
+
+Sam Behrens - 
+
