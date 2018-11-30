@@ -14,14 +14,14 @@ public class Main {
     static boolean wumpusAlive = true;
     static boolean arrow = true;
 	public static void main(String[] args) {
-        int size = 4;
+        int size = 10;
         Node[][] maze = new Node[size][size];
         Random rand = new Random();
         int iter = 0;
         int startId = -1;
         Node playerNode = null;
 
-        for (int i = 0; i < size; i++) { // write the final solution to output.txt
+        for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 maze[i][j] = new Node(iter, j, i);
                 nodes.add(maze[i][j]);
@@ -135,6 +135,7 @@ public class Main {
         
         ArrayList<Node> badSquares = new ArrayList<>();
         int steps = 0;
+        int points = 0;
         boolean collectedGold = false;
         boolean killChecker = false;
         while (true) {
@@ -142,14 +143,18 @@ public class Main {
 
             playerNode.safe = true;
         	if (playerNode.hasPit || (playerNode.hasWumpus && wumpusAlive)) { // check if we are dead
+                points -= 1000;
+                points -= steps;
                 System.out.println("Dead");
                 System.out.println("Steps: " + steps);
+                System.out.println("Points: " + points);
         		break;
         	}
         	playerNode.safe = true; // set the current spot to safe
         	
         	if (playerNode.hasGold == true) { // if space has gold then we collect it
         		collectedGold = true;
+        		steps += 1; // action of picking it up
         	}
         	
         	/*
@@ -204,6 +209,7 @@ public class Main {
         	    //search back to start
                 breadthFirstEnd(playerNode);//used to establish steps
                 steps += nodes.get(startId).tail.size(); // adds tail length to steps
+                points += 1000;
                 killChecker = true; // ends game
             }else {
 
@@ -226,20 +232,23 @@ public class Main {
                             playerNode = findSafestSquare(badSquares);
                             killWumpus(playerNode);
                             badSquares.remove(playerNode);
-                            //search for said square
+                            points-=10;
+                            steps += playerNode.tail.size();
                         } else { // goes to spot without killing
                             playerNode = findSafestSquare(badSquares);
                             badSquares.remove(playerNode);
-                            //search for said square
+                            steps += playerNode.tail.size();
                         }
-                        steps += playerNode.tail.size();
+
 
                     }
                 }
             }
             if(killChecker){
                 System.out.println("Won");
-                System.out.println("Steps:" + steps);
+                System.out.println("Steps: " + steps);
+                points -= steps;
+                System.out.println("Points: " + points);
                 break;
             }
 
@@ -283,6 +292,7 @@ public class Main {
 	public static int breadthFirstZero(Node start) { // breadth first searched for nearest zero spot
         System.out.println("Finding 0");
         clearTails();
+        clearVisited();
     	LinkedList<Node> queue = new LinkedList<>();
     	queue.add(start);
     	Node current;
@@ -292,7 +302,6 @@ public class Main {
     			continue;
     		}
     		if(current.wumpusNum <= 0 && current.pitNum <= 0 && !current.safe) {
-    			clearVisited();
     			return current.id;
     		}
     		current.visited = true;
@@ -304,12 +313,12 @@ public class Main {
     		}
     		
     	}
-    	clearVisited();
     	return -1;
     }
 
     public static int breadthFirstEnd(Node start) { // breadth first searched for start from having gold
         clearTails();
+        clearVisited();
         LinkedList<Node> queue = new LinkedList<>();
         queue.add(start);
         Node current;
@@ -319,7 +328,7 @@ public class Main {
                 continue;
             }
             if(current.start) {
-                clearVisited();
+
                 return current.id;
             }
             current.visited = true;
@@ -329,9 +338,7 @@ public class Main {
                 n.tail.addAll(removeDuplicates(current.tail));
                 queue.add(n);
             }
-
         }
-        clearVisited();
         return -1;
     }
 	
