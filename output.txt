@@ -1,0 +1,9 @@
+Size: 5x5
+P__PP
+____P
+W____
+____G
+_PP_P
+Player Died
+Steps: 1
+Points: -1001

@@ -10,6 +10,7 @@ The logic we used revolved around this number system. The primary mode of moveme
 When either of the above spaces are found we run breadth first search to find the shortest path there. Also, once we find the gold then we immediately run breadth first to find the shortest path back to the start square on only already traveled spaces. 
 This strategy has played out very well because we can easily choose the most optimal paths to preserve the life of the player and can avoid making probabilities and shifts the weight of the scores based on the Wumpus living or not.
 Also because we cannot leave without the gold this is an efficient way to keep life for the longest amount of time maximizing the ability to find the gold and get a lot more points. We also counted picking up the gold as an action, moving a space as an action and shooting the arrow is not an action.
+Takes in a single number as an argument that is the size of the board to be created and solved.
 
 First Order Logic Rules:
 
@@ -24,11 +25,61 @@ First Order Logic Rules:
 
 Results:
 
+Size: 4x4
+_G_P
+___W
+__P_
+____
+Found gold
+Cells entered: 15
+Points: 985
+
+Size: 5x5
+____G
+P__P_
+__P__
+W____
+_____
+Wumpus Screams
+Found gold
+Cells entered: 31
+Points: 959
+
+Size: 8x8
+_______P
+___P___G
+_W______
+______P_
+______P_
+P______P
+___P__P_
+_____P_P
+Found gold
+Cells entered: 59
+Points: 941
+
+Size: 10x10
+__________
+______P_P_
+__PP______
+PP________
+__________
+_PP_____P_
+____G__P_W
+P_P___PP_P
+__________
+__________
+Found gold
+Cells entered: 29
+Points: 971
+
+
+
 Analysis:
 Based on our results we can see that our AI is pretty good. While it tends to get killed often, it is very effective if there is a clear path. It struggles when there are a lot of obstacles because once it runs out of known safe spaces, it has to take a guess based on our version of "proportions." While our method of picking the best option usually performs very well because tests show that we often kill the wumpus then move far on, the way the game works means that sometimes the AI just has to guess. 
 
 Statements of Individual Contribution:
 Peter Gifford - I helped to collaboratively create the set of logic rules with Sam. I also worked with Sam to get all the setup involving the board and searching with Sam. I then plugged in a lot of the code to implement the logic rules and when to run the searched to move. 
 
-Sam Behrens - 
+Sam Behrens - I worked with Peter to setup the board and flesh out how exactly we were going to solve this problem. Then, we both got started on implementing it and I did all of the clean up after the solution was found
 
